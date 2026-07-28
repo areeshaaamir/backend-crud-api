@@ -69,3 +69,29 @@ def createTask(task: TaskCreate):
     tasks.append(newTask)
     
     return newTask
+
+class TaskUpdate(BaseModel):
+    title : str
+    done : bool
+    
+@app.put("/tasks/{task_id}")
+def updateTask(task_id: int, update_task: TaskUpdate):
+    
+    if update_task.title.strip() == "":
+        raise HTTPException(
+            status_code = 400,
+            detail = "Title cannot be empty"
+        )
+        
+    for task in tasks:
+        
+        if task["id"] == task_id:
+            task["title"] = update_task.title
+            task["done"] = update_task.done
+            
+            return task
+        
+    raise HTTPException(
+        status_code = 404,
+        detail = f"Task {task_id} not found"
+    )
