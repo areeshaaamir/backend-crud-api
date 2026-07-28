@@ -96,7 +96,7 @@ def updateTask(task_id: int, update_task: TaskUpdate):
         detail = f"Task {task_id} not found"
     )
     
-@app.delete("/tasks/{task_id}", status_code=204)
+@app.delete("/tasks/{task_id}", status_code=204, summary="Delete an existing task")
 def delete_task(task_id: int):
 
     for task in tasks:
