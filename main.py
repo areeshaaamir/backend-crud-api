@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -21,7 +21,7 @@ tasks = [
     }
 ]
 
-@app.get("/")
+@app.get("/", summary = 'Get API information')
 def root():
     return {
         'name':'CRUD Task API',
@@ -29,15 +29,15 @@ def root():
         'endpoints':["/tasks"]
     }
     
-@app.get("/health")
+@app.get("/health", summary="Check server health")
 def getHealth():
     return {'status':"OK"}
 
-@app.get("/tasks")
+@app.get("/tasks", summary="Get tasks list")
 def getTasks():
     return tasks
 
-@app.get("/tasks/{task_id}")
+@app.get("/tasks/{task_id}", summary="Get a specific task")
 def get_one_task(task_id: int):
     
     for task in tasks:
@@ -52,7 +52,7 @@ def get_one_task(task_id: int):
 class TaskCreate(BaseModel):
     title : str
     
-@app.post("/tasks", status_code=201)
+@app.post("/tasks", status_code=201, summary="Create a new task")
 def createTask(task: TaskCreate):
     
     if task.title.strip() == "":
@@ -74,7 +74,7 @@ class TaskUpdate(BaseModel):
     title : str
     done : bool
     
-@app.put("/tasks/{task_id}")
+@app.put("/tasks/{task_id}", summary="Update an existing task")
 def updateTask(task_id: int, update_task: TaskUpdate):
     
     if update_task.title.strip() == "":
@@ -94,4 +94,20 @@ def updateTask(task_id: int, update_task: TaskUpdate):
     raise HTTPException(
         status_code = 404,
         detail = f"Task {task_id} not found"
+    )
+    
+@app.delete("/tasks/{task_id}", status_code=204)
+def delete_task(task_id: int):
+
+    for task in tasks:
+
+        if task["id"] == task_id:
+
+            tasks.remove(task)
+
+            return Response(status_code=204)
+
+    raise HTTPException(
+        status_code=404,
+        detail=f"Task {task_id} not found."
     )
