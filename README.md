@@ -50,19 +50,39 @@ http://127.0.0.1:8000/docs
 
 #### Curl Output
 
-Run: 
+Run:
 
-curl.exe -i http://127.0.0.1:8000/tasks
+```bash
+curl -i http://127.0.0.1:8000/tasks
+```
 
-Output: 
+Output:
 
+```text
 HTTP/1.1 200 OK
 date: Tue, 28 Jul 2026 12:49:14 GMT
 server: uvicorn
 content-length: 175
 content-type: application/json
 
-[{"id":1,"title":"Complete the FlyRank AI Assignment","done":false},{"id":2,"title":"Farm 1000 Primogems in Genshin","done":false},{"id":3,"title":"Make dinner","done":false}]
+[
+  {
+    "id": 1,
+    "title": "Complete the FlyRank AI Assignment",
+    "done": false
+  },
+  {
+    "id": 2,
+    "title": "Farm 1000 Primogems in Genshin",
+    "done": false
+  },
+  {
+    "id": 3,
+    "title": "Make dinner",
+    "done": false
+  }
+]
+```
 
 ##### Swagger UI
 
