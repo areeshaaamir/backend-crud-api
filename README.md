@@ -114,3 +114,7 @@ I didn't explicitly define the exact response body for successful deletions, so 
 Rematch:
 
 After reviewing the first version, I updated my prompt to explicitly require the GET / and GET /health endpoints, a 204 No Content response for successful deletions, and sequential task IDs that are not reused.
+
+## Pagination
+
+The /tasks endpoint supports the limit and offset query parameters to return only part of the task list. Real APIs use pagination because returning every record at once can slow down responses, increase bandwidth usage, and consume unnecessary memory. Fetching data in smaller chunks makes applications more efficient and scalable.

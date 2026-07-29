@@ -64,7 +64,9 @@ def getHealth():
 
 @app.get("/tasks", summary="Get tasks list")
 def getTasks(done: bool | None = Query(None),
-             search : str | None = Query(None)):
+             search : str | None = Query(None),
+             limit: int | None = Query(None, ge=1),
+             offset: int = Query (0, ge=0)):
     
     result = tasks
 
@@ -76,6 +78,12 @@ def getTasks(done: bool | None = Query(None),
             task for task in tasks 
             if search.lower() in task["title"].lower()
         ]
+        
+    if limit is not None:
+        result = result[offset: offset + limit]
+    else:
+        result = result[offset:]
+        
     return result
 
 @app.get("/tasks/{task_id}", summary="Get a specific task")
