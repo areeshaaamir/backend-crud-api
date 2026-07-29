@@ -26,6 +26,30 @@ tasks = [
     }
 ]
 
+seed = [
+    {
+        'id': 1,
+        'title': "Complete the FlyRank AI Assignment",
+        'done': False
+    },
+    {
+        'id': 2,
+        'title': "Farm 1000 Primogems in Genshin",
+        'done': False
+    },
+    {
+        'id': 3,
+        'title': "Make dinner",
+        'done': False
+    },
+    {
+        'id':4,
+        'title': "Add optional functionality to the API",
+        'done': True
+    }
+]
+
+
 @app.get("/", summary = 'Get API information')
 def root():
     return {
@@ -140,3 +164,11 @@ def delete_task(task_id: int):
         status_code=404,
         detail=f"Task {task_id} not found."
     )
+    
+@app.post("/stats", summary = "Reset tasks to the original ones")
+def resetTasks():
+    global tasks
+    
+    tasks = [task.copy() for task in seed]
+    
+    return tasks
