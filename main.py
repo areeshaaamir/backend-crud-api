@@ -39,12 +39,20 @@ def getHealth():
     return {'status':"OK"}
 
 @app.get("/tasks", summary="Get tasks list")
-def getTasks(done: bool | None = Query(None)):
-
-    if done is None:
-        return tasks
+def getTasks(done: bool | None = Query(None),
+             search : str | None = Query(None)):
     
-    return [task for task in tasks if task["done"]==done]
+    result = tasks
+
+    if done is not None:
+        return [task for task in tasks if task["done"]== done]
+    
+    if search is not None:
+        result = [
+            task for task in tasks 
+            if search.lower() in task["title"].lower()
+        ]
+    return result
 
 @app.get("/tasks/{task_id}", summary="Get a specific task")
 def get_one_task(task_id: int):
