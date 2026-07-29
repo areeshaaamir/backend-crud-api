@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException, Response, Query
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -18,6 +18,11 @@ tasks = [
         'id': 3,
         'title': "Make dinner",
         'done': False
+    },
+    {
+        'id':4,
+        'title': "Add optional functionality to the API",
+        'done': True
     }
 ]
 
@@ -34,8 +39,12 @@ def getHealth():
     return {'status':"OK"}
 
 @app.get("/tasks", summary="Get tasks list")
-def getTasks():
-    return tasks
+def getTasks(done: bool | None = Query(None)):
+
+    if done is None:
+        return tasks
+    
+    return [task for task in tasks if task["done"]==done]
 
 @app.get("/tasks/{task_id}", summary="Get a specific task")
 def get_one_task(task_id: int):
