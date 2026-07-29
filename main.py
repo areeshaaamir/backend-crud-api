@@ -66,6 +66,18 @@ def get_one_task(task_id: int):
         detail= f"Task {task_id} does not exist"
     )
     
+@app.get("/stats", summary="Check tasks stats")
+def getStats():
+    total = len(tasks)
+    done = sum([1 for task in tasks if task["done"]])
+    open = total - done
+    
+    return {
+        "total": total,
+        "done": done,
+        "open": open
+    }
+    
 class TaskCreate(BaseModel):
     title : str
     
