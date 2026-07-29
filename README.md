@@ -93,3 +93,24 @@ content-type: application/json
 ## Mortality Experiment
 
 After creating a new task and restarting the server, the new task disappeared and only the original seed tasks remained. This happened because the API currently stores tasks in an in-memory Python list, so all changes are lost when the server process stops; a database would provide persistent storage.
+
+## AI vs Me
+(I used Claude)
+
+1. What did AI do better?
+
+Claude used Pydantic field validators instead of validating titles inside endpoint functions, and it created helper functions such as find_task() and get_next_id(). 
+
+2. What AI got wrong?
+
+It omitted the GET /health and GET / endpoints. Its DELETE doesn't return a 204 No content response, instead it returns a success message
+
+3. What my prompt forgot?
+
+I didn't explain how task IDs should be generated, so the AI chose to reuse deleted IDs.
+I didn't specify the initial seed tasks, so the AI created its own sample data.
+I didn't explicitly define the exact response body for successful deletions, so the AI returned a JSON message.
+
+Rematch:
+
+After reviewing the first version, I updated my prompt to explicitly require the GET / and GET /health endpoints, a 204 No Content response for successful deletions, and sequential task IDs that are not reused.
