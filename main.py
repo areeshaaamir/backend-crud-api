@@ -165,7 +165,7 @@ def delete_task(task_id: int):
         detail=f"Task {task_id} not found."
     )
     
-@app.post("/stats", summary = "Reset tasks to the original ones")
+@app.post("/reset", summary = "Reset tasks to the original ones")
 def resetTasks():
     global tasks
     

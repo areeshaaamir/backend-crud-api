@@ -36,7 +36,7 @@ Open
 http://127.0.0.1:8000/docs
 ```
 
-### Endpoints
+## Endpoints
 
 | Method | Endpoint      | Description     |
 | ------ | ------------- | --------------- |
@@ -47,8 +47,10 @@ http://127.0.0.1:8000/docs
 | POST   | `/tasks`      | Create task     |
 | PUT    | `/tasks/{id}` | Update task     |
 | DELETE | `/tasks/{id}` | Delete task     |
+| GET    | `/stats`      | Stats Info      |
+| POST   | `/reset`      | Reset tasks     |
 
-#### Curl Output
+## Curl Output
 
 Run:
 
@@ -84,7 +86,10 @@ content-type: application/json
 ]
 ```
 
-##### Swagger UI
+## Swagger UI
 
 ![Swagger](swagger.png)
 
+## Mortality Experiment
+
+After creating a new task and restarting the server, the new task disappeared and only the original seed tasks remained. This happened because the API currently stores tasks in an in-memory Python list, so all changes are lost when the server process stops; a database would provide persistent storage.
