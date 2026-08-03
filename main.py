@@ -1,55 +1,8 @@
 from fastapi import FastAPI, HTTPException, Response, Query
 from pydantic import BaseModel
-import database
+from database import conn, cursor
 
 app = FastAPI()
-
-tasks = [
-    {
-        'id': 1,
-        'title': "Complete the FlyRank AI Assignment",
-        'done': False
-    },
-    {
-        'id': 2,
-        'title': "Farm 1000 Primogems in Genshin",
-        'done': False
-    },
-    {
-        'id': 3,
-        'title': "Make dinner",
-        'done': False
-    },
-    {
-        'id':4,
-        'title': "Add optional functionality to the API",
-        'done': True
-    }
-]
-
-seed = [
-    {
-        'id': 1,
-        'title': "Complete the FlyRank AI Assignment",
-        'done': False
-    },
-    {
-        'id': 2,
-        'title': "Farm 1000 Primogems in Genshin",
-        'done': False
-    },
-    {
-        'id': 3,
-        'title': "Make dinner",
-        'done': False
-    },
-    {
-        'id':4,
-        'title': "Add optional functionality to the API",
-        'done': True
-    }
-]
-
 
 @app.get("/", summary = 'Get API information')
 def root():
@@ -69,7 +22,19 @@ def getTasks(done: bool | None = Query(None),
              limit: int | None = Query(None, ge=1),
              offset: int = Query (0, ge=0)):
     
-    result = tasks
+    cursor.execute("SELECT * FROM tasks")
+    rows = cursor.fetchall()
+    
+    result = []
+    
+    for row in rows:
+        result.append(
+            {
+                "id": row[0],
+                "title" : row[1],
+                "done" : row[2]
+            }
+        )
 
     if done is not None:
         return [task for task in tasks if task["done"]== done]
@@ -90,15 +55,21 @@ def getTasks(done: bool | None = Query(None),
 @app.get("/tasks/{task_id}", summary="Get a specific task")
 def get_one_task(task_id: int):
     
-    for task in tasks:
-        if task_id == task["id"]:
-            return task
-        
-    raise HTTPException(
-        status_code= 404,
-        detail= f"Task {task_id} does not exist"
-    )
+    cursor.execute("SELECT * FROM tasks WHERE id = ?", (task_id,))
+    row = cursor.fetchone()
     
+    if row is None:
+        raise HTTPException(
+            status_code = 404,
+            detail = "Task not found"
+        )
+    
+    return{
+        "id" : row[0],
+        "title" : row[1],
+        "done" : row[2]
+    }
+        
 @app.get("/stats", summary="Check tasks stats")
 def getStats():
     total = len(tasks)
