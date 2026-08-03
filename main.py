@@ -93,15 +93,21 @@ def createTask(task: TaskCreate):
             status_code=400,
             detail="Title cannot be empty"
         )
-    newTask = {
-        "id" : len(tasks) + 1,
-        "title" : task.title,
-        'done': False
+    
+    cursor.execute("""
+                   INSERT INTO tasks(title, done)
+                   VALUES (?, ?)
+                   """, (task.title, False))
+    
+    conn.commit()
+    
+    new_id = cursor.lastrowid
+    
+    return {
+        "id":new_id,
+        "title": task.title,
+        "done" : False
     }
-    
-    tasks.append(newTask)
-    
-    return newTask
 
 class TaskUpdate(BaseModel):
     title : str
@@ -116,34 +122,40 @@ def updateTask(task_id: int, update_task: TaskUpdate):
             detail = "Title cannot be empty"
         )
         
-    for task in tasks:
+    cursor.execute("""
+                   UPDATE tasks
+                   SET title = ?, done = ?
+                   WHERE id = ?""", (update_task.title, update_task.done, task_id))
+
         
-        if task["id"] == task_id:
-            task["title"] = update_task.title
-            task["done"] = update_task.done
-            
-            return task
+    if cursor.rowcount == 0:
+        raise HTTPException(
+                status_code = 404,
+                detail = f"Task {task_id} not found"
+            )
         
-    raise HTTPException(
-        status_code = 404,
-        detail = f"Task {task_id} not found"
-    )
+    conn.commit()
+    
+    return{
+        "id":task_id,
+        "title": update_task.title,
+        "done": update_task.done
+    }
     
 @app.delete("/tasks/{task_id}", status_code=204, summary="Delete an existing task")
 def delete_task(task_id: int):
 
-    for task in tasks:
+    cursor.execute("""
+                   DELETE FROM tasks
+                   WHERE id = ?""", (task_id,))
 
-        if task["id"] == task_id:
-
-            tasks.remove(task)
-
-            return Response(status_code=204)
-
-    raise HTTPException(
-        status_code=404,
-        detail=f"Task {task_id} not found."
-    )
+    if cursor.rowcount == 0:
+        raise HTTPException(
+                status_code=404,
+                detail=f"Task {task_id} not found."
+            )
+        
+    conn.commit()
     
 @app.post("/reset", summary = "Reset tasks to the original ones")
 def resetTasks():
