@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Response, Query
 from pydantic import BaseModel
 from database import conn, cursor
+from datetime import datetime
 
 app = FastAPI()
 
@@ -32,7 +33,9 @@ def getTasks(done: bool | None = Query(None),
             {
                 "id": row[0],
                 "title" : row[1],
-                "done" : row[2]
+                "done" : row[2],
+                "created_at": row[3],
+                "updated_at": row[4]
             }
         )
 
@@ -67,7 +70,9 @@ def get_one_task(task_id: int):
     return{
         "id" : row[0],
         "title" : row[1],
-        "done" : row[2]
+        "done" : row[2],
+        "created_at":row[3],
+        "updated_at": row[4]
     }
         
 @app.get("/stats", summary="Check tasks stats")
@@ -93,6 +98,8 @@ class TaskCreate(BaseModel):
 @app.post("/tasks", status_code=201, summary="Create a new task")
 def createTask(task: TaskCreate):
     
+    now = datetime.now().isoformat()
+    
     if task.title.strip() == "":
         raise HTTPException(
             status_code=400,
@@ -100,9 +107,9 @@ def createTask(task: TaskCreate):
         )
     
     cursor.execute("""
-                   INSERT INTO tasks(title, done)
-                   VALUES (?, ?)
-                   """, (task.title, False))
+                   INSERT INTO tasks(title, done, created_at, updated_at)
+                   VALUES (?, ?, ?, ?)
+                   """, (task.title, False, now, now))
     
     conn.commit()
     
@@ -111,7 +118,9 @@ def createTask(task: TaskCreate):
     return {
         "id":new_id,
         "title": task.title,
-        "done" : False
+        "done" : False,
+        "created_at": now,
+        "updated_at": now
     }
 
 class TaskUpdate(BaseModel):
@@ -121,6 +130,8 @@ class TaskUpdate(BaseModel):
 @app.put("/tasks/{task_id}", summary="Update an existing task")
 def updateTask(task_id: int, update_task: TaskUpdate):
     
+    now = datetime.now().isoformat()
+    
     if update_task.title.strip() == "":
         raise HTTPException(
             status_code = 400,
@@ -129,8 +140,15 @@ def updateTask(task_id: int, update_task: TaskUpdate):
         
     cursor.execute("""
                    UPDATE tasks
-                   SET title = ?, done = ?
-                   WHERE id = ?""", (update_task.title, update_task.done, task_id))
+                   SET title = ?, done = ?, updated_at = ?
+                   WHERE id = ?""", (update_task.title, update_task.done, now, task_id))
+    
+    cursor.execute(
+    "SELECT * FROM tasks WHERE id = ?",
+    (task_id,)
+    )
+
+    row = cursor.fetchone()
 
         
     if cursor.rowcount == 0:
@@ -144,7 +162,9 @@ def updateTask(task_id: int, update_task: TaskUpdate):
     return{
         "id":task_id,
         "title": update_task.title,
-        "done": update_task.done
+        "done": update_task.done,
+        "created_at": row[3],
+        "updated_at": row[4]
     }
     
 @app.delete("/tasks/{task_id}", status_code=204, summary="Delete an existing task")

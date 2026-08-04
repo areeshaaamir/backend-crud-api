@@ -130,7 +130,7 @@ tasks.db
 
 The database file is created automatically in the project root directory the first time the application is run.
 
-# Screenshot for the Database Viewer
+# Screenshot for the Database Browser
 
 ![Database Viewer](swagger.png)
 
