@@ -37,11 +37,11 @@ def getTasks(done: bool | None = Query(None),
         )
 
     if done is not None:
-        return [task for task in tasks if task["done"]== done]
+        return [task for task in result if task["done"]== done]
     
     if search is not None:
         result = [
-            task for task in tasks 
+            task for task in result 
             if search.lower() in task["title"].lower()
         ]
         
@@ -72,8 +72,13 @@ def get_one_task(task_id: int):
         
 @app.get("/stats", summary="Check tasks stats")
 def getStats():
-    total = len(tasks)
-    done = sum([1 for task in tasks if task["done"]])
+    
+    cursor.execute("SELECT COUNT(*) FROM tasks")
+    total = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(*) FROM tasks WHERE done = 1")
+    done = cursor.fetchone()[0]
+    
     open = total - done
     
     return {
@@ -157,10 +162,3 @@ def delete_task(task_id: int):
         
     conn.commit()
     
-@app.post("/reset", summary = "Reset tasks to the original ones")
-def resetTasks():
-    global tasks
-    
-    tasks = [task.copy() for task in seed]
-    
-    return tasks

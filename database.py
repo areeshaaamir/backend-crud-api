@@ -5,7 +5,7 @@ cursor = conn.cursor()
 
 cursor.execute("""
                CREATE TABLE IF NOT EXISTS tasks(
-                   id INTEGER PRIMARY KEY,
+                   id INTEGER PRIMARY KEY AUTOINCREMENT,
                    title TEXT,
                    done BOOLEAN
                )""")
