@@ -2,7 +2,7 @@
 
 A simple CRUD Task API built using FastAPI for the FlyRank AI Internship assignment.
 
-The API allows users to create, read, update and delete tasks while demonstrating REST API principles, HTTP status codes and input validation.
+The API allows users to create, read, update and delete tasks while demonstrating REST API principles, HTTP status codes and input validation. It also has SQLite database connected to it, any changes made to the database are reflected by the API. 
 
 ## Installation
 
@@ -21,7 +21,7 @@ cd backend-crud-api
 Install dependencies
 
 ```bash
-pip install fastapi uvicorn
+pip install requirements.txt
 ```
 
 Run the server
@@ -48,7 +48,6 @@ http://127.0.0.1:8000/docs
 | PUT    | `/tasks/{id}` | Update task     |
 | DELETE | `/tasks/{id}` | Delete task     |
 | GET    | `/stats`      | Stats Info      |
-| POST   | `/reset`      | Reset tasks     |
 
 ## Curl Output
 
@@ -95,7 +94,7 @@ content-type: application/json
 After creating a new task and restarting the server, the new task disappeared and only the original seed tasks remained. This happened because the API currently stores tasks in an in-memory Python list, so all changes are lost when the server process stops; a database would provide persistent storage.
 
 ## AI vs Me
-(I used Claude)
+The AI version of this same assignment is in "ai_crud_api" and is added only for learning purposes and as an optional extra for the assignment. It doesn't have any database, it's the AI version of the Week 1 assignment, i.e., Backend CRUD API.
 
 1. What did AI do better?
 
@@ -118,3 +117,24 @@ After reviewing the first version, I updated my prompt to explicitly require the
 ## Pagination
 
 The /tasks endpoint supports the limit and offset query parameters to return only part of the task list. Real APIs use pagination because returning every record at once can slow down responses, increase bandwidth usage, and consume unnecessary memory. Fetching data in smaller chunks makes applications more efficient and scalable.
+
+## Why SQLite?
+
+SQLite was chosen because it is lightweight, serverless, and built into Python. It requires no separate installation or database server, making it ideal for small projects and learning SQL concepts. It also stores all data in a single file, making the project easy to set up and share.
+
+## Database
+
+The application stores all task data in a SQLite database named:
+
+tasks.db
+
+The database file is created automatically in the project root directory the first time the application is run.
+
+# Screenshot for the Database Viewer
+
+![Database Viewer](swagger.png)
+
+## Example SQL Query
+
+```sql
+UPDATE tasks SET done = 1 WHERE id = 2;
